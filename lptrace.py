@@ -18,18 +18,16 @@ trace_fn = """def __lptrace_trace_calls__(frame, event, arg):
 __LPTRACE_FIFO_NAME__ = "%s"
 __LPTRACE_OUTPUT_FIFO__ = None
 import os
-import sys ; sys.settrace(__lptrace_trace_calls__)
-print 'INJECTED'"""
+import sys ; sys.settrace(__lptrace_trace_calls__)"""
 
 
-def strace(pid):
-    fifo_name = tempfile.mktemp()
-    os.mkfifo(fifo_name)
-    os.chmod(fifo_name, 0777)
+untrace_fn = """import sys ; sys.settrace(None)"""
 
+
+def runfile(pid, script):
     with tempfile.NamedTemporaryFile() as tmp:
         name = tmp.name
-        tmp.write(trace_fn % fifo_name)
+        tmp.write(script)
 
         tmp.file.flush()
         os.chmod(tmp.name, 0666)
@@ -37,9 +35,28 @@ def strace(pid):
         cmd = 'execfile(\\"{}\\")'.format(name)
         inject(pid, cmd)
 
+
+def strace(pid):
+    fifo_name = tempfile.mktemp()
+    os.mkfifo(fifo_name)
+    os.chmod(fifo_name, 0777)
+
+    trace_code = trace_fn % fifo_name
+    runfile(pid, trace_code)
+
+    # Remove the trace if the user types Ctrl-C:
+    def sigint_handler(signal, frame):
+        print 'Received Ctrl-C, quitting'
+        runfile(pid, untrace_fn)
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, sigint_handler)
+
     with open(fifo_name) as fd:
         while True:
-            print fd.read()
+            data = fd.read()
+            if data != '':
+                print data
 
 
 def pdb_prompt(pid):
@@ -57,11 +74,10 @@ def inject(pid, code):
 
     cmdline = 'gdb -p %d -batch %s' % (pid,
         ' '.join(["-eval-command='call %s'" % cmd for cmd in gdb_cmds]))
-    print cmdline
+
     p = subprocess.Popen(cmdline, shell=True, stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
+                         stderr=subprocess.PIPE, )
     out, err = p.communicate()
-    print out, err
 
 
 def main():
