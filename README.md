@@ -4,42 +4,46 @@ lptrace is strace for Python programs. It lets you see in real-time
 what functions a Python program is running. It's particularly useful
 to debug weird issues on production.
 
-For example, let's take the following toy Python program:
-
-```python
-import time
-
-def f():
-    time.sleep(1)
-    g()
-
-def g():
-    time.sleep(1)
-    f()
-
-f()
-```
-
-Let's run it and connect lptrace to it:
+For example, let's debugging a non-trivial program, the Python SimpleHTTPServer.
+First, let's run the server:
 
 ```
-vagrant@precise32:/vagrant$ python /tmp/t.py &
-[1] 1765
-vagrant@precise32:/vagrant$ sudo python ttrace.py -p 1765
-f (/tmp/t.py:3)
-g (/tmp/t.py:7)
-f (/tmp/t.py:3)
-g (/tmp/t.py:7)
-f (/tmp/t.py:3)
-g (/tmp/t.py:7)
-f (/tmp/t.py:3)
-g (/tmp/t.py:7)
-f (/tmp/t.py:3)
+vagrant@precise32:/vagrant$ python -m SimpleHTTPServer 8080 &
+[1] 1818
+vagrant@precise32:/vagrant$ Serving HTTP on 0.0.0.0 port 8080 ...
+```
+
+Now let's connect lptrace to it:
+
+```
+vagrant@precise32:/vagrant$ sudo python ttrace.py -p 1818
+...
+fileno (/usr/lib/python2.7/SocketServer.py:438)
+meth (/usr/lib/python2.7/socket.py:223)
+
+fileno (/usr/lib/python2.7/SocketServer.py:438)
+meth (/usr/lib/python2.7/socket.py:223)
+
+_handle_request_noblock (/usr/lib/python2.7/SocketServer.py:271)
+get_request (/usr/lib/python2.7/SocketServer.py:446)
+accept (/usr/lib/python2.7/socket.py:201)
+__init__ (/usr/lib/python2.7/socket.py:185)
+verify_request (/usr/lib/python2.7/SocketServer.py:296)
+process_request (/usr/lib/python2.7/SocketServer.py:304)
+finish_request (/usr/lib/python2.7/SocketServer.py:321)
+__init__ (/usr/lib/python2.7/SocketServer.py:632)
+setup (/usr/lib/python2.7/SocketServer.py:681)
+makefile (/usr/lib/python2.7/socket.py:212)
+__init__ (/usr/lib/python2.7/socket.py:246)
+makefile (/usr/lib/python2.7/socket.py:212)
+__init__ (/usr/lib/python2.7/socket.py:246)
+handle (/usr/lib/python2.7/BaseHTTPServer.py:336)
+handle_one_request (/usr/lib/python2.7/BaseHTTPServer.py:301)
 ^CReceived Ctrl-C, quitting
 vagrant@precise32:/vagrant$
 ```
 
-That's it! After pressing Ctrl-C, the trace is removed and the program
+You can see that the server is handling the request normally! After pressing Ctrl-C, the trace is removed and the program
 execution resumes normally.
 
 # Running lptrace

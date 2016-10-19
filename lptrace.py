@@ -1,3 +1,6 @@
+# lptrace - Copyright (c) 2016 Karim Hamidou.
+# Portions inspired by Pyrasite.
+
 import os
 import sys
 import signal
@@ -12,7 +15,7 @@ trace_fn = """def __lptrace_trace_calls__(frame, event, arg):
 
     code = frame.f_code
     with open(__LPTRACE_FIFO_NAME__, 'w') as fifo:
-        fifo.write("{} ({}:{})".format(code.co_name,
+        fifo.write("{} ({}:{})\\n".format(code.co_name,
                                        code.co_filename, frame.f_lineno))
 
 __LPTRACE_FIFO_NAME__ = "%s"
