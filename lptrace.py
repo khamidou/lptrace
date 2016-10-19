@@ -97,6 +97,10 @@ def main():
 
     pid = int(options.pid)
 
+    if os.geteuid() != 0:
+        print "Error: you must be root to run lptrace. Exiting."
+        sys.exit(-1)
+
     if options.debugger is True:
         pdb_prompt(pid)
     else:
