@@ -43,7 +43,7 @@ handle_one_request (/usr/lib/python2.7/BaseHTTPServer.py:301)
 vagrant@precise32:/vagrant$
 ```
 
-You can see that the server is handling the request normally! After pressing Ctrl-C, the trace is removed and the program
+You can see that the server is handling the request in real time! After pressing Ctrl-C, the trace is removed and the program
 execution resumes normally.
 
 # Running lptrace
