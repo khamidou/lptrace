@@ -42,12 +42,10 @@ vagrant@precise32:/vagrant$
 That's it! After pressing Ctrl-C, the trace is removed and the program
 execution resumes normally.
 
-# Installing
+# Running lptrace
 
 lptrace was written to be run on production servers. Because of this,
 you only need `lptrace.py` to run the whole program.
-
-We may have a pypi package in the near future.
 
 # Usage
 
@@ -74,21 +72,29 @@ successfully, and it should run on most recent Unices.
 
 # Technical details
 
-lptrace is a relatively simple program but it uses some moderately crazy hacks to modify an already
-running Python program. I encourage you to read the source (it's roughly 100 lines of Python), but
-here's a 5 minute overview of how it works:
-
-1. gdb is an awesome debugger. It lets you attach to any running program, as long as you're root. It
+gdb is an awesome debugger. It lets you attach to any running program, as long as you're root. It
 also lets you call any C function this program exposes.
 
-2. Among the C functions the Python interpreter exposes, one function `PyRun\_SimpleString` lets you
-run a single expression of Python code.
+What's interesting is that among the C functions the Python interpreter exposes,
+one function `PyRun\_SimpleString`, lets you run a single expression of Python code.
 
-3. 
+We use this function to ask the Python process to read a temporary file `lptrace` created. This file
+contains a hook to the `sys.settrace` function, which allows us to get notified whenever a function is
+called.
+
+Finally, we need to output the tracing data somewhere. We could do this in the program we're tracing
+but that wouldn't be very useful. Instead, we write it to a FIFO so that `lptrace` can display it in
+its own window.
+
+That's about it. I encourage you to read the source --- it's short and pretty simple!
 
 # Issues
 
 Please open a ticket [here](https://github.com/khamidou/lptrace/issues)
+
+# Security
+
+lptrace is a debugging tool. It uses temporary files, so it may be vulnerable to some race conditions. Caveat emptor!
 
 # Special Thanks
 
