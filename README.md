@@ -62,7 +62,7 @@ Note that this requires that the Python program you're attaching to
 has access to stdin.
 
 ```
-sudo python lptrace -p <process_id>
+sudo python lptrace -p <process_id> -d
 ```
 
 # Requirements
