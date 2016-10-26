@@ -1,3 +1,4 @@
+
 # lptrace
 
 lptrace is strace for Python programs. It lets you see in real-time
@@ -16,7 +17,7 @@ vagrant@precise32:/vagrant$ Serving HTTP on 0.0.0.0 port 8080 ...
 Now let's connect lptrace to it:
 
 ```
-vagrant@precise32:/vagrant$ sudo python lptrace.py -p 1818
+vagrant@precise32:/vagrant$ sudo python lptrace -p 1818
 ...
 fileno (/usr/lib/python2.7/SocketServer.py:438)
 meth (/usr/lib/python2.7/socket.py:223)
@@ -67,7 +68,7 @@ That's about it. I encourage you to read the source --- it's short and pretty si
 # Running lptrace
 
 lptrace was written to be run on production servers. Because of this,
-you only need `lptrace.py` to run the whole program.
+you only need `lptrace` to run the whole program. You can get `lptrace` by installing the `lptrace` [PyPI package](https://pypi.python.org/pypi/lptrace) or simply by downloading the [main source file](https://raw.githubusercontent.com/khamidou/lptrace/master/lptrace).
 
 # Usage
 
@@ -89,7 +90,7 @@ sudo python lptrace -p <process_id> -d
 
 # Requirements
 
-lptrace requires Python 2.x and GDB 7.x. It has been tested on Linux
+lptrace requires Python 2.7.x and GDB 7.x. It has been tested on Linux
 successfully, and it should run on most recent Unices.
 
 # Issues
