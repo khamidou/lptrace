@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # lptrace - Copyright (c) 2016 Karim Hamidou.
 # Portions inspired by Pyrasite.
-
 import os
 import sys
 import signal
@@ -84,6 +83,11 @@ def inject(pid, code):
     out, err = p.communicate()
 
 
+def cmd_exists(cmd):
+    return subprocess.call("type " + cmd, shell=True,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+
+
 def main():
     parser = OptionParser()
     parser.add_option("-p", "--process", dest="pid",
@@ -100,6 +104,10 @@ def main():
         sys.exit(-1)
 
     pid = int(options.pid)
+
+    if not cmd_exists('gdb'):
+        print "Error: lptrace requires GDB >= 7.x. Exiting."
+        sys.exit(-1)
 
     if os.geteuid() != 0:
         print "Error: you must be root to run lptrace. Exiting."
